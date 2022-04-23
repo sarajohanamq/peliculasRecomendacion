@@ -1,0 +1,45 @@
+.banner-principal{
+    display: flex;
+    background-image: url("../../assets/hero-area.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-y: bottom;
+    width:100vw;
+	height:100vh;
+    margin: 0;
+    padding: 0;
+    
+}
+.banner-principal:before{
+    content:'';
+	position: absolute;
+        top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(63, 63, 63, 0.716);
+}
+.div-banner-pelicula{
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: white;
+    text-align: center;
+    padding-left: 5%;
+    position: absolute;
+    background-color: #13151f;
+    height: 70vh;
+    margin-top: 30vh;
+    width: 70%;
+    margin-left: 15%;
+    z-index: 2;
+}
+.post-cartelera{
+    z-index: 3;
+    height: 75vh;
+    position: absolute;
+    left: 280px;
+    width: 30%; 
+    top: 120px;
+}
+.image{
+    height:75vh;
+}
