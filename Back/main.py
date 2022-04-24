@@ -25,8 +25,8 @@ class movie :
         self.image = image
         
 @app.get("/recommend")
-def read_root(user:int):
-    a =knnpred.recomendation_movie(user)
+def read_root(user:int,mettho:int):
+    a =knnpred.recomendation_movie(user,mettho)
     listOfReading= reading_list(a)  
     return listOfReading
 

@@ -6,6 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 from json import loads
 import warnings
 warnings.filterwarnings("ignore")
+metrics=['cosine','manhattan','euclidean','minkowski']
 dataMV= pd.read_csv('ratings_small.csv')
 linkset=pd.read_csv('links.csv')
 namesset=pd.read_csv('movies_metadata.csv')
@@ -15,16 +16,16 @@ df_movie_features = dataMV.pivot(
     values='rating'
 ).fillna(0)
 sparse_movies = csr_matrix(df_movie_features.values)
-model_knn = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=13, n_jobs=-1)
-model_knn.fit(sparse_movies)
-def recomen(userId):
+def recomen(userId,metthod):
     movie=int(select_movie(userId))
     table=df_movie_features.reset_index()
     filtro=table["movieId"]==movie
     pelicula=table[filtro]
     indice=pelicula.index.tolist()[0]
-    return make_recommendation(df_movie_features,4,indice)
-def make_recommendation( data, n_recommendations,movie_data):
+    return make_recommendation(df_movie_features,4,indice,metthod)
+def make_recommendation( data, n_recommendations,movie_data,metthod):
+    model_knn = NearestNeighbors(metric=metthod, algorithm='brute', n_neighbors=13, n_jobs=-1)
+    model_knn.fit(sparse_movies)
     idlis=[]
     query_index = movie_data
     distances, indices = model_knn.kneighbors(data.iloc[query_index,:].values.reshape(1, -1), n_neighbors =n_recommendations )
@@ -43,7 +44,6 @@ def select_movie (userId):
     aleatorio = df_ranking.sample()
     indice=aleatorio.index.tolist()[0]
     return df_ranking["movieId"][indice]
-   
 def putitleMovies(movies):
     datset_recomendacion=pd.DataFrame(columns=["title","imdb","sinopsis","date","image"])
     for mov in movies:
@@ -69,9 +69,8 @@ def putitleMovies(movies):
                 tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
                 datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":imagen},ignore_index=True)
     return datset_recomendacion
-
-def foundMovie(inuser):
-    recomend=recomen(inuser)
+def foundMovie(inuser,metthod):
+    recomend=recomen(inuser,metthod)
     arreglo_tmdbId=[]
     for inrt in recomend:
         filtro=linkset["movieId"]==inrt
@@ -89,15 +88,14 @@ def foundMovie(inuser):
            
 
     return arreglo_tmdbId
-def recomendation_movie(userId):   
-    movies = foundMovie(userId)
+def recomendation_movie(userId,methodI): 
+    movies = foundMovie(userId,metrics[methodI])
     while(movies ==0):
         movies = foundMovie(userId)
     
     
     moviesA=putitleMovies(movies)
     return moviesA
-   
 def moviesLikebyUser(userId):
     df_for_user=pd.DataFrame()
     df_for_user["clasificacion"]=df_movie_features[userId]
