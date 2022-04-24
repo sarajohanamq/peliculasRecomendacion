@@ -24,7 +24,6 @@ def recomen(userId):
     pelicula=table[filtro]
     indice=pelicula.index.tolist()[0]
     return make_recommendation(df_movie_features,4,indice)
-
 def make_recommendation( data, n_recommendations,movie_data):
     idlis=[]
     query_index = movie_data
@@ -33,7 +32,6 @@ def make_recommendation( data, n_recommendations,movie_data):
     for i in range(1, len(distances.flatten())):
         idlis.append(indices.flatten()[i])
     return idlis
-
 def select_movie (userId):
     df_for_user=pd.DataFrame()
     df_for_user["clasificacion"]=df_movie_features[userId]
@@ -45,6 +43,33 @@ def select_movie (userId):
     aleatorio = df_ranking.sample()
     indice=aleatorio.index.tolist()[0]
     return df_ranking["movieId"][indice]
+   
+def putitleMovies(movies):
+    datset_recomendacion=pd.DataFrame(columns=["title","imdb","sinopsis","date","image"])
+    for mov in movies:
+            filtro=namesset["id"]==mov
+            pelicula=namesset[filtro]
+            copy=pelicula.copy(deep=True)
+            copy.dropna(subset = ["belongs_to_collection"], inplace=True)
+            if copy.empty == True:  
+                url_imagen="https://www.initcoms.com/wp-content/uploads/2020/07/404-error-not-found-1.png"
+                tagline=str(pelicula["tagline"].tolist()[0])
+
+                tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
+                datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":url_imagen},ignore_index=True)
+            else:
+
+                stringJson=pelicula["belongs_to_collection"].tolist()[0]
+                replaces1=stringJson.replace("'s",'s')
+                replaces2=replaces1.replace("None",'"None"')
+                replaces=replaces2.replace("'",'"')
+                jsonpelicula=loads(replaces)
+                imagen="https://image.tmdb.org/t/p/w500/"+jsonpelicula["poster_path"]
+                tagline=str(pelicula["tagline"].tolist()[0])
+                tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
+                datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":imagen},ignore_index=True)
+    return datset_recomendacion
+
 def foundMovie(inuser):
     recomend=recomen(inuser)
     arreglo_tmdbId=[]
@@ -68,28 +93,33 @@ def recomendation_movie(userId):
     movies = foundMovie(userId)
     while(movies ==0):
         movies = foundMovie(userId)
-    datset_recomendacion=pd.DataFrame(columns=["title","imdb","sinopsis","date","image"])
-
-    for mov in movies:
-        filtro=namesset["id"]==mov
-        pelicula=namesset[filtro]
-        copy=pelicula.copy(deep=True)
-        copy.dropna(subset = ["belongs_to_collection"], inplace=True)
-        if copy.empty == True:  
-            url_imagen="https://www.initcoms.com/wp-content/uploads/2020/07/404-error-not-found-1.png"
-            tagline=str(pelicula["tagline"].tolist()[0])
+    
+    
+    moviesA=putitleMovies(movies)
+    return moviesA
+   
+def moviesLikebyUser(userId):
+    df_for_user=pd.DataFrame()
+    df_for_user["clasificacion"]=df_movie_features[userId]
+    df_mayor_clas=pd.DataFrame(columns=["index","clasificacion"])
+    filtro=df_for_user["clasificacion"]>=4.0
+    df_ranking=df_for_user[filtro]
+    df_ranking=df_ranking.reset_index()
+    recomend= df_ranking["movieId"][:]
+    arreglo_tmdbId=[]
+    for inrt in recomend:
+        filtro=linkset["movieId"]==inrt
+        link=linkset[filtro]
+        if(link.empty): 
+            return 0
             
-            tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
-            datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":url_imagen},ignore_index=True)
         else:
-            
-            stringJson=pelicula["belongs_to_collection"].tolist()[0]
-            replaces1=stringJson.replace("'s",'s')
-            replaces2=replaces1.replace("None",'"None"')
-            replaces=replaces2.replace("'",'"')
-            jsonpelicula=loads(replaces)
-            imagen="https://image.tmdb.org/t/p/w500/"+jsonpelicula["poster_path"]
-            tagline=str(pelicula["tagline"].tolist()[0])
-            tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
-            datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":imagen},ignore_index=True)
-    return datset_recomendacion
+            copy=link.copy(deep=True)
+            copy.dropna(subset = ["tmdbId"], inplace=True)
+            if copy.empty == True: 
+                return 0
+            else:  
+                arreglo_tmdbId.append(str(int(link["tmdbId"].tolist()[0])))
+           
+    dataUserMovies=putitleMovies(arreglo_tmdbId)
+    return dataUserMovies

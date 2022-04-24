@@ -24,13 +24,16 @@ class movie :
         self.date = date
         self.image = image
         
-@app.get("/")
-def read_root():
-    list = []
-    a =knnpred.recomendation_movie(258)
-    print(a.to_markdown())
+@app.get("/recommend")
+def read_root(user:int):
+    a =knnpred.recomendation_movie(user)
     listOfReading= reading_list(a)  
-  
+    return listOfReading
+
+@app.get("/listLikeMovies")
+def read_root(user:int):
+    a =knnpred.moviesLikebyUser(user)
+    listOfReading= reading_list(a)  
     return listOfReading
 
 def reading_list(df)->list:
