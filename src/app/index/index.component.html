@@ -1,14 +1,76 @@
+<div class="banner-principal" *ngIf="user!=0">
+    <button class="volverButton principal" (click)="selecVolver()"> Volver</button>
+    <ngb-carousel class="carrusel" *ngIf="preferidas">
+        <ng-template ngbSlide class="template" *ngFor="let item of preferidas;">
+            <div class="pelicula">
+                <div class="div-banner-pelicula">
+                    <div class="info">
+                        <h2>{{item.title}}</h2>
+                        <h2>{{item.date}}</h2>
+                        <p>Sinopsis: {{item.sinopsis}}</p>
+                        <a href="https://www.imdb.com/title/{{item.imdb}}" target="_blank"><button
+                                class="ButtonImdb">VER MAS INFORMACION</button></a>
+                    </div>
+                </div>
+                <div class="post-cartelera">
+                    <img class="image" fallback="../../assets/Poster NO FOUND.png" src={{item.image}}>
 
-<div class="banner-principal">
+                </div>
 
-    <div>
-       
-        <div class="div-banner-pelicula"> 
-            <h2>TOY STORY 4</h2>
+
+            </div>
+        </ng-template>
+    </ngb-carousel>
+
+</div>
+
+<div class="recomendaciones" *ngIf="user!=0">
+    <div class="card margin">
+        <div class="card content" *ngFor="let item of userrecomedar;">
+            <img class="image-recomendacion" fallback="../../assets/Poster NO FOUND.png"  src={{item.image}}>
+            <p>{{item.title}}</p>
+            <p>{{item.date}}</p>
+            <p class="sinopsis">Sinopsis: {{item.sinopsis}}</p>
+            <a href="https://www.imdb.com/title/{{item.imdb}}" target="_blank"><button class="button-recomendacion">VER MAS
+                    INFORMACION</button></a>
         </div>
-        <div class="post-cartelera">
-            <img class="image" src="../../assets/toystory.jpeg">
+    </div>
+</div>
+
+<div class="banner-inicio" *ngIf="user==0">
+    <div class="info-principal">
+        <div class="banner-info">
+
         </div>
-      </div>
-   
+
+        <div class="div-banner-usuario">
+            <h2>Ingrese el usuario que desea consultar</h2>
+            <form [formGroup]="miFomulario" #frmLogin="ngForm" class="example-form"
+                (ngSubmit)="enviar(miFomulario.value)">
+                <div class="form-group">
+                    <div class="columns">
+                        <label>ID </label>
+                        <input matInput required formControlName="id" type="number" class="form-control" placeholder="id"
+                            value=1>
+    
+                    </div>
+                    <div class="columns">
+                        <select matInput formControlName="select" name="select">
+                            <option *ngFor="let item of opciones;" value={{item.value}}>{{item.viewValue}}</option>
+                           
+                          </select>
+                              
+                    </div>
+                  
+                </div>
+                <div class="buttondiv">
+                    <button mat-raised-button id="basic" type="submit" class="butttonsend"
+                        [disabled]="frmLogin.invalid">Enviar</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
 </div>

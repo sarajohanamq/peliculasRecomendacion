@@ -52,7 +52,32 @@ def putitleMovies(movies):
             copy=pelicula.copy(deep=True)
             copy.dropna(subset = ["belongs_to_collection"], inplace=True)
             if copy.empty == True:  
-                url_imagen="https://www.initcoms.com/wp-content/uploads/2020/07/404-error-not-found-1.png"
+                url_imagen="../../assets/Poster NO FOUND.png"
+                tagline=str(pelicula["tagline"].tolist()[0])
+
+                tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
+                datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":url_imagen},ignore_index=True)
+            else:
+
+                stringJson=pelicula["belongs_to_collection"].tolist()[0]
+                replaces1=stringJson.replace("'s",'s')
+                replaces2=replaces1.replace("None",'"None"')
+                replaces=replaces2.replace("'",'"')
+                jsonpelicula=loads(replaces)
+                imagen="https://image.tmdb.org/t/p/w500/"+jsonpelicula["poster_path"]
+                tagline=str(pelicula["tagline"].tolist()[0])
+                tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
+                datset_recomendacion=datset_recomendacion.append({"title":pelicula["original_title"].tolist()[0],"imdb":pelicula["imdb_id"].tolist()[0],"sinopsis":tagline_final,"date":pelicula["release_date"].tolist()[0],"image":imagen},ignore_index=True)
+    return datset_recomendacion
+def putitleMoviesLike(movies):
+    datset_recomendacion=pd.DataFrame(columns=["title","imdb","sinopsis","date","image"])
+    for mov in movies:
+            filtro=namesset["id"]==mov
+            pelicula=namesset[filtro]
+            copy=pelicula.copy(deep=True)
+            copy.dropna(subset = ["belongs_to_collection"], inplace=True)
+            if copy.empty == True:  
+                url_imagen="../../assets/Poster NO FOUND2.png"
                 tagline=str(pelicula["tagline"].tolist()[0])
 
                 tagline_final= tagline.replace("nan",'Sin informacion de sinopsis')
@@ -94,7 +119,7 @@ def recomendation_movie(userId,methodI):
         movies = foundMovie(userId)
     
     
-    moviesA=putitleMovies(movies)
+    moviesA=putitleMoviesLike(movies)
     return moviesA
 def moviesLikebyUser(userId):
     df_for_user=pd.DataFrame()
